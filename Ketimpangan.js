@@ -1,0 +1,21 @@
+const kontribusiKetimpanganData = [
+  { kota: "Kepulauan Mentawai", kontribusi: 123 },
+  { kota: "Pesisir Selatan", kontribusi: 7.8379 },
+  { kota: "Solok", kontribusi: 2.6564 },
+  { kota: "Sijunjung", kontribusi: 1.1015 },
+  { kota: "Tanah Datar", kontribusi: 2.1961 },
+  { kota: "Padang Pariaman", kontribusi: 1.1524 },
+  { kota: "Agam", kontribusi: 2.4354 },
+  { kota: "Lima Puluh Kota", kontribusi: 1.1711 },
+  { kota: "Pasaman", kontribusi: 6.2895 },
+  { kota: "Solok Selatan", kontribusi: 5.438 },
+  { kota: "Dharmasraya", kontribusi: 1.284 },
+  { kota: "Pasaman Barat", kontribusi: 2.1314 },
+  { kota: "Kota Padang", kontribusi: 6.9317 },
+  { kota: "Kota Solok", kontribusi: 5.252 },
+  { kota: "Kota SawahLunto", kontribusi: 1.9553 },
+  { kota: "Kota Padang Panjang", kontribusi: 4.2807 },
+  { kota: "Kota Bukittinggi", kontribusi: 10.0835 },
+  { kota: "Kota Payakumbuh", kontribusi: 1.353 },
+  { kota: "Kota Pariaman", kontribusi: 3.833 }
+];

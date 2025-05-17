@@ -1,0 +1,21 @@
+const pertumbuhanEkonomiData = [
+  { kota: "Kepulauan Mentawai", pertumbuhan: 4.23 },
+  { kota: "Pesisir Selatan", pertumbuhan: 5.89 },
+  { kota: "Solok", pertumbuhan: 4.39 },
+  { kota: "Sijunjung", pertumbuhan: 4.73 },
+  { kota: "Tanah Datar", pertumbuhan: 4.36 },
+  { kota: "Padang Pariaman", pertumbuhan: 2.90 },
+  { kota: "Agam", pertumbuhan: 5.23 },
+  { kota: "Lima Puluh Kota", pertumbuhan: 4.12 },
+  { kota: "Pasaman", pertumbuhan: 5.16 },
+  { kota: "Solok Selatan", pertumbuhan: 4.47 },
+  { kota: "Dharmasraya", pertumbuhan: 5.02 },
+  { kota: "Pasaman Barat", pertumbuhan: 4.47 },
+  { kota: "Kota Padang", pertumbuhan: 4.82 },
+  { kota: "Kota Solok", pertumbuhan: 5.20 },
+  { kota: "Kota SawahLunto", pertumbuhan: 5.33 },
+  { kota: "Kota Padang Panjang", pertumbuhan: 5.12 },
+  { kota: "Kota Bukittinggi", pertumbuhan: 4.62 },
+  { kota: "Kota Payakumbuh", pertumbuhan: 6.96 },
+  { kota: "Kota Pariaman", pertumbuhan: 5.29 }
+];

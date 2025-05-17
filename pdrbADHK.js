@@ -1,0 +1,21 @@
+const pdrbADHKData = [
+  { kota: "Kepulauan Mentawai", pdrb: 37215 },
+  { kota: "Pesisir Selatan", pdrb: 20670 },
+  { kota: "Solok", pdrb: 27868 },
+  { kota: "Sijunjung", pdrb: 31441 },
+  { kota: "Tanah Datar", pdrb: 28778 },
+  { kota: "Padang Pariaman", pdrb: 31294 },
+  { kota: "Agam", pdrb: 30300 },
+  { kota: "Lima Puluh Kota", pdrb: 32242 },
+  { kota: "Pasaman", pdrb: 22473 },
+  { kota: "Solok Selatan", pdrb: 23559 },
+  { kota: "Dharmasraya", pdrb: 35698 },
+  { kota: "Pasaman Barat", pdrb: 28923 },
+  { kota: "Kota Padang", pdrb: 54090 },
+  { kota: "Kota Solok", pdrb: 42359 },
+  { kota: "Kota sawahlunto", pdrb: 46502 },
+  { kota: "Kota Padang Panjang", pdrb: 50627 },
+  { kota: "Kota Bukittinggi", pdrb: 57435 },
+  { kota: "Kota Payakumbuh", pdrb: 35640 },
+  { kota: "Kota Pariaman", pdrb: 42712 }
+];

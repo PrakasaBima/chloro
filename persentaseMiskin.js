@@ -1,0 +1,22 @@
+const pendudukMiskinData = [
+  { kota: "Kepulauan Mentawai", persentaseMiskin: 13.89 },
+  { kota: "Pesisir Selatan", persentaseMiskin: 7.49 },
+  { kota: "Solok", persentaseMiskin: 7.31 },
+  { kota: "Sijunjung", persentaseMiskin: 5.78 },
+  { kota: "Tanah Datar", persentaseMiskin: 4.28 },
+  { kota: "Padang Pariaman", persentaseMiskin: 6.27 },
+  { kota: "Agam", persentaseMiskin: 6.83 },
+  { kota: "Lima Puluh Kota", persentaseMiskin: 6.92 },
+  { kota: "Pasaman", persentaseMiskin: 6.74 },
+  { kota: "Solok Selatan", persentaseMiskin: 6.56 },
+  { kota: "Dharmasraya", persentaseMiskin: 5.32 },
+  { kota: "Pasaman Barat", persentaseMiskin: 7.00 },
+  { kota: "Kota Padang", persentaseMiskin: 4.06 },
+  { kota: "Kota Solok", persentaseMiskin: 3.07 },
+  { kota: "Kota sawahlunto", persentaseMiskin: 2.33 },
+  { kota: "Kota Padang Panjang", persentaseMiskin: 5.31 },
+  { kota: "Kota Bukittinggi", persentaseMiskin: 4.08 },
+  { kota: "Kota Payakumbuh", persentaseMiskin: 5.19 },
+  { kota: "Kota Pariaman", persentaseMiskin: 4.26 },
+  { kota: "Sumatera Barat", persentaseMiskin: 5.97 }
+];
