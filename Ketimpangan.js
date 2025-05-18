@@ -1,5 +1,5 @@
 const kontribusiKetimpanganData = [
-  { kota: "Kepulauan Mentawai", kontribusi: 123 },
+  { kota: "Kepulauan Mentawai", kontribusi: 0.0123 },
   { kota: "Pesisir Selatan", kontribusi: 7.8379 },
   { kota: "Solok", kontribusi: 2.6564 },
   { kota: "Sijunjung", kontribusi: 1.1015 },

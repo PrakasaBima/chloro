@@ -4,17 +4,27 @@
   <meta charset="UTF-8" />
   <title>Peta Sumatera Barat</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <!-- Load semua data -->
+
+  <!-- Data Ekonomi -->
   <script src="pdrbData.js"></script>
   <script src="pdrbADHK.js"></script>
   <script src="persentaseMiskin.js"></script>
   <script src="jumlahMiskin.js"></script>
   <script src="Ketimpangan.js"></script>
   <script src="pertumbuhanEkonomi.js"></script>
+
   <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+    }
+
     #map {
       height: 100vh;
+      width: 100%;
     }
 
     .info {
@@ -25,10 +35,8 @@
       font: 14px/16px Arial, Helvetica, sans-serif;
     }
 
-    #back-button {
+    #back-button, #data-toggle {
       position: absolute;
-      top: 10px;
-      left: 10px;
       z-index: 1000;
       background: white;
       padding: 6px 10px;
@@ -36,19 +44,17 @@
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
       font-family: Arial;
       cursor: pointer;
+    }
+
+    #back-button {
+      top: 10px;
+      left: 10px;
       display: none;
     }
 
     #data-toggle {
-      position: absolute;
       top: 20px;
       right: 300px;
-      z-index: 1000;
-      background: white;
-      padding: 6px 10px;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
-      font-family: Arial;
     }
   </style>
 </head>
@@ -56,7 +62,7 @@
   <div id="map"></div>
   <div id="back-button">⬅ Kembali ke Kabupaten</div>
   <div id="data-toggle">
-    Tampilkan: 
+    Tampilkan:
     <select id="data-type">
       <option value="adhb">PDRB ADHB</option>
       <option value="adhk">PDRB ADHK</option>
@@ -70,55 +76,13 @@
   <!-- Library -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/@turf/turf@6.5.0/turf.min.js"></script>
-
-  <!-- GeoJSON: Sumatera Barat -->
+  <script src="https://unpkg.com/leaflet-ajax@2.1.0/dist/leaflet.ajax.min.js"></script>
+  <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
   <script src="Sumatera_Barat.js"></script>
 
-  <script>    
-    let currentDataType = 'adhb'; // Default tampilkan ADHB
-    
-    function getDataByDistrict(name) {
-      let value, unit, label;
-      
-      if (currentDataType === 'adhb') {
-        const found = pdrbData.find(d => d.kota.toLowerCase() === name.toLowerCase());
-        value = found ? found.pdrb : null;
-        unit = 'Miliar';
-        label = 'PDRB ADHB';
-      } 
-      else if (currentDataType === 'adhk') {
-        const found = pdrbADHKData.find(d => d.kota.toLowerCase() === name.toLowerCase());
-        value = found ? found.pdrb : null;
-        unit = 'Ribu';
-        label = 'PDRB ADHK';
-      }
-      else if (currentDataType === 'miskin') {
-        const found = pendudukMiskinData.find(d => d.kota.toLowerCase() === name.toLowerCase());
-        value = found ? found.persentaseMiskin : null;
-        unit = '%';
-        label = 'Persentase Penduduk Miskin';
-      }
-      else if (currentDataType == 'totalMiskin'){
-        const found = jumlahMiskinData.find(d => d.kota.toLowerCase()=== name.toLowerCase());
-        value = found ? found.garisKemiskinan : null;
-        unit = 'Ribu';
-        label = 'Jumlah Penduduk Miskin';
-      }
-      else if (currentDataType == 'ketimpangan') {
-        const found = kontribusiKetimpanganData.find(d =>d.kota.toLowerCase() === name.toLowerCase());
-        value = found ? found.kontribusi : null;
-        unit = '%'
-        label = 'Ketimpangan Regional'
-      }
-      else if (currentDataType == 'pertumbuhan') {
-        const found = pertumbuhanEkonomiData.find(d =>d.kota.toLowerCase()=== name.toLowerCase());
-        value=found ? found.pertumbuhan : null;
-        unit ='%'
-        label = 'Pertumbuhan Ekonomi'
-      }
-      
-      return { value, unit, label };
-    }
+  <script>
+    let currentDataType = 'adhb';
+    let kabupatenLayer, kecamatanLayer, labelLayer, currentHoveredLayer;
 
     const map = L.map("map").setView([-0.8, 100.5], 7);
 
@@ -133,12 +97,10 @@
       this.update();
       return this._div;
     };
-    
     info.update = function (props) {
       if (props) {
         const name = props.district || props.sub_district;
         const { value, unit, label } = getDataByDistrict(name);
-        
         this._div.innerHTML = `<b>${name}</b><br/>` +
           (value !== null ? `${label}: ${value.toLocaleString("id-ID")} ${unit}` : "Data tidak tersedia");
       } else {
@@ -147,21 +109,105 @@
     };
     info.addTo(map);
 
-    const backButton = document.getElementById("back-button");
-    const dataTypeSelect = document.getElementById("data-type");
+    function getDataByDistrict(name) {
+      let value, unit, label;
 
-    let kabupatenLayer = null;
-    let kecamatanLayer = null;
-    let labelLayer = null;
-    let currentHoveredLayer = null;
+      switch (currentDataType) {
+        case 'adhb':
+          const adhb = pdrbData.find(d => d.kota.toLowerCase() === name.toLowerCase());
+          value = adhb ? adhb.pdrb : null;
+          unit = 'Miliar'; label = 'PDRB ADHB'; break;
+        case 'adhk':
+          const adhk = pdrbADHKData.find(d => d.kota.toLowerCase() === name.toLowerCase());
+          value = adhk ? adhk.pdrb : null;
+          unit = 'Ribu'; label = 'PDRB ADHK'; break;
+        case 'miskin':
+          const miskin = pendudukMiskinData.find(d => d.kota.toLowerCase() === name.toLowerCase());
+          value = miskin ? miskin.persentaseMiskin : null;
+          unit = '%'; label = 'Persentase Penduduk Miskin'; break;
+        case 'totalMiskin':
+          const totalMiskin = jumlahMiskinData.find(d => d.kota.toLowerCase() === name.toLowerCase());
+          value = totalMiskin ? totalMiskin.garisKemiskinan : null;
+          unit = 'Ribu'; label = 'Jumlah Penduduk Miskin'; break;
+        case 'ketimpangan':
+          const ketimpangan = kontribusiKetimpanganData.find(d => d.kota.toLowerCase() === name.toLowerCase());
+          value = ketimpangan ? ketimpangan.kontribusi : null;
+          unit = '%'; label = 'Ketimpangan Regional'; break;
+        case 'pertumbuhan':
+          const pertumbuhan = pertumbuhanEkonomiData.find(d => d.kota.toLowerCase() === name.toLowerCase());
+          value = pertumbuhan ? pertumbuhan.pertumbuhan : null;
+          unit = '%'; label = 'Pertumbuhan Ekonomi'; break;
+      }
 
-    const styleDefault = {
-      weight: 1,
-      color: "#fff",
-      fillColor: "#f93",
-      fillOpacity: 0.6,
-      dashArray: '3'
-    };
+      return { value, unit, label };
+    }
+
+    function getColor(value) {
+      if (value == null) return '#ccc';
+
+      if (['totalMiskin'].includes(currentDataType)) {
+        return value > 1000000 ? '#400000' :
+               value > 800000  ? '#800000' :
+               value > 700000  ? '#c00000' :
+               value > 600000  ? '#c00000' :
+               value > 500000  ? '#ff4040' :
+               value > 400000  ? '#ff0000' :
+               value > 300000  ? '#ff4040' :
+               value > 200000  ? '#ff8080' :
+               value > 100000  ? '#ffc0c0' : '#ffc0c0';
+      }else if (currentDataType === 'miskin') {
+        return value > 20 ? '#400000' :
+               value > 15 ? '#800000' :
+               value > 10 ? '#c00000' :
+               value > 5  ? '#ff4040' :
+               value > 2  ? '#ff8080' :
+               value > 1  ? '#ffc0c0' : '#ffc0c0';
+      }else if (currentDataType === 'adhb') {
+        return value > 21000 ? '#400000' :
+               value > 18000 ? '#800000' :
+               value > 10000 ? '#c00000' :
+               value > 9000  ? '#ff4040' :
+               value > 4000  ? '#ff8080' :
+               value > 2000 ? '#ffc0c0' : '#ffc0c0';
+      } else if (currentDataType === 'adhk') {
+        return value > 40000 ? '#400000' :
+               value > 35000 ? '#800000' :
+               value > 30000 ? '#c00000' :
+               value > 25000  ? '#ff4040' :
+               value > 20000  ? '#ff8080' :
+               value > 100000  ? '#ffc0c0' : '#ffc0c0';
+      } else if (currentDataType === 'ketimpangan') {
+        return value > 5. ? '#400000' :
+               value > 3. ? '#800000' :
+               value > 2. ? '#c00000' :
+               value > 1. ? '#ff4040' :
+               value > 0.05 ? '#ff8080' : '#ffc0c0';
+      } else if (currentDataType === 'ketimpangan') {
+        return value > 5. ? '#400000' :
+               value > 3. ? '#800000' :
+               value > 2. ? '#c00000' :
+               value > 1. ? '#ff4040' :
+               value > 0.05 ? '#ff8080' : '#ffc0c0';
+      } else (currentDataType === 'pertumbuhan');{
+        return value > 6 ? '#400000' :
+               value > 5 ? '#800000' :
+               value > 4 ? '#c00000' :
+               value > 2 ? '#ff4040' :
+               value > 1 ? '#ff8080' : '#ffc0c0';
+      } 
+    }
+
+    function getFeatureStyle(feature) {
+      const name = feature.properties.district || feature.properties.sub_district;
+      const { value } = getDataByDistrict(name);
+      return {
+        weight: 1,
+        color: "#fff",
+        fillColor: getColor(value),
+        fillOpacity: 0.7,
+        dashArray: '3'
+      };
+    }
 
     const styleHover = {
       weight: 3,
@@ -173,7 +219,7 @@
       if (kecamatanLayer) map.removeLayer(kecamatanLayer);
       if (labelLayer) map.removeLayer(labelLayer);
       if (kabupatenLayer) map.removeLayer(kabupatenLayer);
-      backButton.style.display = "none";
+      document.getElementById("back-button").style.display = "none";
       showKabupatenLayer();
     }
 
@@ -186,7 +232,6 @@
       });
 
       const kabFeatures = [];
-
       for (const [kab, features] of Object.entries(grouped)) {
         let merged = features[0];
         for (let i = 1; i < features.length; i++) {
@@ -202,13 +247,11 @@
       }
 
       kabupatenLayer = L.geoJSON(kabFeatures, {
-        style: styleDefault,
+        style: getFeatureStyle,
         onEachFeature: (feature, layer) => {
           layer.on({
             mouseover: e => {
-              if (currentHoveredLayer) {
-                kabupatenLayer.resetStyle(currentHoveredLayer);
-              }
+              if (currentHoveredLayer) kabupatenLayer.resetStyle(currentHoveredLayer);
               e.target.setStyle(styleHover);
               currentHoveredLayer = e.target;
               info.update(feature.properties);
@@ -218,9 +261,7 @@
               currentHoveredLayer = null;
               info.update();
             },
-            click: () => {
-              showKecamatan(feature.properties.district);
-            }
+            click: () => showKecamatan(feature.properties.district)
           });
         }
       }).addTo(map);
@@ -236,13 +277,11 @@
       );
 
       kecamatanLayer = L.geoJSON(kecFeatures, {
-        style: styleDefault,
+        style: getFeatureStyle,
         onEachFeature: (feature, layer) => {
           layer.on({
             mouseover: e => {
-              if (currentHoveredLayer) {
-                kecamatanLayer.resetStyle(currentHoveredLayer);
-              }
+              if (currentHoveredLayer) kecamatanLayer.resetStyle(currentHoveredLayer);
               e.target.setStyle(styleHover);
               currentHoveredLayer = e.target;
               info.update(feature.properties);
@@ -272,21 +311,20 @@
       labelLayer.addTo(map);
 
       map.fitBounds(kecamatanLayer.getBounds());
-      backButton.style.display = "block";
+      document.getElementById("back-button").style.display = "block";
     }
 
-    // Handle perubahan tipe data
-    dataTypeSelect.addEventListener('change', function() {
+    // Event listeners
+    document.getElementById("data-type").addEventListener("change", function () {
       currentDataType = this.value;
-      // Update info box jika sedang mengarah ke suatu wilayah
-      if (currentHoveredLayer) {
-        const feature = currentHoveredLayer.feature;
-        info.update(feature.properties);
-      }
+      if (kabupatenLayer) kabupatenLayer.setStyle(getFeatureStyle);
+      if (kecamatanLayer) kecamatanLayer.setStyle(getFeatureStyle);
+      if (currentHoveredLayer) info.update(currentHoveredLayer.feature.properties);
     });
 
-    backButton.onclick = resetMap;
+    document.getElementById("back-button").onclick = resetMap;
 
+    // Initial Load
     showKabupatenLayer();
   </script>
 </body>
